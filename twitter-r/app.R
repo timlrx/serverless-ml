@@ -1,12 +1,19 @@
   
 # app.R
 
-#' CORS allows requests made from external urls to be accepted
-#' @filter cors
+#* CORS allows requests made from external urls to be accepted
+#* @filter cors
 cors <- function(res) {
   res$setHeader("Access-Control-Allow-Origin", "*")
   plumber::forward()
 }
+
+#* Health check
+#* @get /health
+function(req, res){
+  res$status <- 200
+}
+
 
 #* Echo back the input
 #* @param msg The message to echo
@@ -26,8 +33,8 @@ function(){
 #* Return the sum of two numbers
 #* @param a The first number to add
 #* @param b The second number to add
-#* @post /sum
-function(a, b){
+#* @get /sum
+search <- function(a="1", b="1"){
   as.numeric(a) + as.numeric(b)
 }
 
