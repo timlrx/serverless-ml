@@ -18,15 +18,15 @@ authenticate <- function() {
   return(token)
 }	
 
-get_tweets <- function(account_vector, n) {
-  return(get_timelines(account_vector, n))
+get_tweets <- function(account_vector, n, token) {
+  return(get_timelines(account_vector, n, token=token))
 }
 
 plot_tweet_trends <- function(tmls) {
   account_list_str = paste(unlist(tmls['screen_name'] %>% unique()), collapse=", ")
   
   ## plot the frequency of tweets for each user over time
-  tmls %>%
+  p <- tmls %>%
     filter(created_at > "2017-10-29") %>%
     group_by(screen_name) %>%
     ts_plot("days", trim = 1L) +
@@ -40,8 +40,9 @@ plot_tweet_trends <- function(tmls) {
       x = NULL, y = NULL,
       title = "Frequency of Twitter Actitity by Accounts",
       subtitle = paste("Tweets aggregated by day for the following accounts:", account_list_str)
-    ) %>%
-    return()
+    )
+  
+  return(p)
 }
 
 plot_sentiment_trends <- function(tmls) {
@@ -58,12 +59,14 @@ plot_sentiment_trends <- function(tmls) {
     group_by(screen_name, day, sentiment) %>%
     tally() %>%
     spread(sentiment, n, fill = 0) %>%
-    mutate(sentiment = positive - negative)
+    ungroup() %>%
+    mutate(sentiment = positive - negative,
+           day = as.Date(day))
   
-  ggplot(tweet_sentiment, aes(as.Date(day), sentiment, fill = screen_name)) +
+  p <- ggplot(tweet_sentiment, aes(day, sentiment, fill = screen_name)) +
     geom_col(show.legend = FALSE) +
     scale_x_date(date_labels = "%b %d") +
-    facet_wrap(~screen_name, ncol = 2, scales = "free_x") +
+    facet_wrap(~screen_name, ncol = 1, scales = "free_x") +
     theme_minimal() +
     theme(
       legend.title = ggplot2::element_blank(),
@@ -72,16 +75,14 @@ plot_sentiment_trends <- function(tmls) {
     labs(
       x = NULL, y = NULL,
       title = "Sentiment Analysis of Accounts"
-    ) %>%
-    return()
+    )
+    
+  return(p)
 }
 
 ## Sample usage
 token <- authenticate()
-tmls <- get_tweets(c("BBCWorld", "realDonaldTrump"), n = 500)
+tmls <- get_tweets(c("BBCWorld", "realDonaldTrump"), n = 500, token)
 plot_tweet_trends(tmls)
 plot_sentiment_trends(tmls)
-
-
-
 
