@@ -35,7 +35,7 @@ function(users="", n=400){
   users_vector <- strsplit(users, ",")[[1]]
   token <- authenticate()
   tmls <- get_tweets(users_vector, min(3200, as.numeric(n)), token)
-  plot_tweet_trends(tmls) %>% ggplotly()
+  plot_tweet_trends(tmls) %>% ggplotly() %>% partial_bundle() 
 }
 
 
@@ -60,5 +60,5 @@ function(users="", n=400){
   users_vector <- strsplit(users, ",")[[1]]
   token <- authenticate()
   tmls <- get_tweets(users_vector, min(3200, as.numeric(n)), token)
-  plot_sentiment_trends(tmls) %>% ggplotly()
+  plot_sentiment_trends(tmls) %>% ggplotly() %>% partial_bundle() 
 }
